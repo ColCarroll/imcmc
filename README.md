@@ -43,7 +43,7 @@ Built with
 
 `Pillow` does not have a logo, but the other tools do!
 
-![Python][https://github.com/ColCarroll/imcmc/raw/master/examples/python.gif]
+![Python](examples/python.gif)
 
 ![PyMC3][examples/pymc3.gif]
 
