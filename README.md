@@ -1,5 +1,4 @@
-imcmc
-=====
+![imcmc](examples/imcmc.gif)
 *It probably makes art.*
 
 `imcmc` (*im-sea-em-sea*) is a small library for turning 2d images into probability distributions
