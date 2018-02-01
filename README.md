@@ -43,13 +43,14 @@ Built with
 
 `Pillow` does not have a logo, but the other tools do!
 
+
+![PyMC3](examples/pymc3.gif)
+
+![matplotlib](examples/matplotlib.gif)
+
+![scipy](examples/scipy.gif)
+
 ![Python](examples/python.gif)
-
-![PyMC3][examples/pymc3.gif]
-
-![matplotlib][examples/matplotlib.gif]
-
-![scipy][examples/scipy.gif]
 
 
 Here's a tricky one whose support I appreciate
