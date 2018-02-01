@@ -59,7 +59,7 @@ Here's a tricky one whose support I appreciate
 I get to do lots of open source work for [The Center for Civic Media](https://civic.mit.edu/) at 
 MIT. Even better, they have a super multi-modal logo that I needed to use 98 chains to sample from!
 
-![Center for Civic Media][examples/civic.gif]
+![Center for Civic Media](examples/civic.gif)
 
 
 Further work
