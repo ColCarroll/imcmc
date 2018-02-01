@@ -1,8 +1,10 @@
 ![imcmc](examples/imcmc.gif)
+
+
 *It probably makes art.*
 
 `imcmc` (*im-sea-em-sea*) is a small library for turning 2d images into probability distributions
-and then sampling from them to create images and gifs. 
+and then sampling from them to create images and gifs. Right now it is best at logos and shape based images.
 
 
 Installation
