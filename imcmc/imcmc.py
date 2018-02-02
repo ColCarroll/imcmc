@@ -9,6 +9,7 @@ import theano.tensor as tt
 from tqdm import tqdm
 import scipy
 
+
 def get_rainbow():
     """Creates a rainbow color cycle"""
     return cycler('color', [
@@ -19,7 +20,8 @@ def get_rainbow():
         '#0000FF',
         '#4B0082',
         '#9400D3',
-        ])
+    ])
+
 
 def load_image(image_file, mode=None):
     """Load filename into a numpy array, filling in transparency with 0's.
@@ -31,8 +33,8 @@ def load_image(image_file, mode=None):
 
     Returns
     -------
-    numpy.ndarray of resulting image. Has shape (w, h), (w, h, 3), or (w, h, 4) if black and
-        white, color, or color with alpha channel, respectively.
+    numpy.ndarray of resulting image. Has shape (w, h), (w, h, 3), or (w, h, 4)
+        if black and white, color, or color with alpha channel, respectively.
     """
     image = Image.open(image_file)
     if mode is None:
@@ -48,7 +50,10 @@ def load_image(image_file, mode=None):
 
 
 class ImageLikelihood(theano.Op):
-    """Custom theano op for turning a 2d intensity matrix into a density distribution."""
+    """
+    Custom theano op for turning a 2d intensity matrix into a density
+    distribution.
+    """
 
     itypes = [tt.dvector]
     otypes = [tt.dvector]
@@ -81,22 +86,23 @@ def sample_grayscale(image, samples=5000, tune=100, nchains=4, threshold=0.2):
         Number of samples to draw from the image
 
     tune : int
-        Number of tuning steps to take. Note that this adjusts the step size: if you want smaller
-        steps, make tune closer to 0.
+        Number of tuning steps to take. Note that this adjusts the step size:
+            if you want smaller steps, make tune closer to 0.
 
     nchains : int
-        Number of chains to sample with. This will later turn into the number of colors in your
-        plot. Note that you get `samples * nchains` of total points in your final scatter.
+        Number of chains to sample with. This will later turn into the number
+        of colors in your plot. Note that you get `samples * nchains` of total
+        points in your final scatter.
 
     threshold : float
-        Float between 0 and 1. It looks nicer when an image is binarized, and this will do that.
-        Use `None` to not binarize. In theory you should get fewer samples from lighter areas,
-        but your mileage may vary.
+        Float between 0 and 1. It looks nicer when an image is binarized, and
+        this will do that. Use `None` to not binarize. In theory you should get
+        fewer samples from lighter areas, but your mileage may vary.
 
     Returns
     -------
-    pymc3.MultiTrace of samples from the image. Each sample is an (x, y) float of indices that
-        were sampled, with the variable name 'image'.
+    pymc3.MultiTrace of samples from the image. Each sample is an (x, y) float
+        of indices that were sampled, with the variable name 'image'.
     """
     # preprocess
     if threshold != -1:
@@ -114,7 +120,7 @@ def sample_grayscale(image, samples=5000, tune=100, nchains=4, threshold=0.2):
                           tune=tune,
                           chains=nchains, step=pm.Metropolis(),
                           start=[{'image': x} for x in start],
-                         )
+                          )
     return trace
 
 
@@ -130,13 +136,14 @@ def sample_color(image, samples=5000, tune=1000):
         Number of samples to draw from the image
 
     tune : int
-        All chains start at the same spot, so it is good to let them wander apart a bit before
-        beginning
+        All chains start at the same spot, so it is good to let them wander
+        apart a bit before beginning
 
     Returns
     -------
-    pymc3.MultiTrace of samples from the image. Each sample is an (x, y) float of indices that
-        were sampled, with three variables named 'red', 'green', 'blue'.
+    pymc3.MultiTrace of samples from the image. Each sample is an (x, y) float
+        of indices that were sampled, with three variables named 'red',
+        'green', 'blue'.
     """
 
     with pm.Model():
@@ -160,15 +167,17 @@ def plot_multitrace(trace, image, max_size=10, colors=None, **plot_kwargs):
         Image array from `load_image`, used to produce the trace.
 
     max_size : float
-        Used to set the figsize for the image, maintaining the aspect ratio. In inches!
+        Used to set the figsize for the image, maintaining the aspect ratio.
+        In inches!
 
     colors : iterable
         You can set custom colors to cycle through! Default is the rainbow.
 
     plot_kwargs :
-        Other keyword arguments passed to the trace plotting. Some useful examples are
-        marker='.' in case you sampled lots of points, alpha=0.3 to add transparency to the
-        points, or linestyle='-', so you can see the actual path the chains took.
+        Other keyword arguments passed to the trace plotting. Some useful
+        examples are marker='.' in case you sampled lots of points, alpha=0.3
+        to add transparency to the points, or linestyle='-', so you can see the
+        actual path the chains took.
 
     Returns
     -------
@@ -195,8 +204,9 @@ def plot_multitrace(trace, image, max_size=10, colors=None, **plot_kwargs):
     return fig, ax
 
 
-def make_gif(trace, image, steps=200, leading_point=True, filename='output.gif',
-             max_size=10, interval=30, dpi=20, colors=None, **plot_kwargs):
+def make_gif(trace, image, steps=200, leading_point=True,
+             filename='output.gif', max_size=10, interval=30, dpi=20,
+             colors=None, **plot_kwargs):
     """Make a gif of the grayscale trace.
 
     Parameters
@@ -211,27 +221,31 @@ def make_gif(trace, image, steps=200, leading_point=True, filename='output.gif',
         Number of frames in the resulting .gif
 
     leading_point : bool
-        If true, adds a large point at the head of each chain, so you can follow the path easier.
+        If true, adds a large point at the head of each chain, so you can
+        follow the path easier.
 
     filename : str
         Place to save the resulting .gif to
 
     max_size : float
-        Used to set the figsize for the image, maintaining the aspect ratio. In inches!
+        Used to set the figsize for the image, maintaining the aspect ratio.
+        In inches!
 
     interval : int
         How long each frame lasts. Pretty sure this is hundredths of seconds
 
     dpi : int
-        Quality of the resulting .gif Seems like larger values make the gif bigger too.
+        Quality of the resulting .gif Seems like larger values make the gif
+        bigger too.
 
     colors : iterable
         You can set custom colors to cycle through! Default is the rainbow.
 
     plot_kwargs :
-        Other keyword arguments passed to the trace plotting. Some useful examples are
-        marker='.' in case you sampled lots of points, alpha=0.3 to add transparency to the
-        points, or linestyle='-', so you can see the actual path the chains took.
+        Other keyword arguments passed to the trace plotting. Some useful
+        examples are marker='.' in case you sampled lots of points, alpha=0.3
+        to add transparency to the points, or linestyle='-', so you can see the
+        actual path the chains took.
 
     Returns
     -------
@@ -246,7 +260,7 @@ def make_gif(trace, image, steps=200, leading_point=True, filename='output.gif',
         colors = cycler('color', colors)
 
     vals = [trace.get_values('image', chains=chain) for chain in trace.chains]
-    intervals = np.linspace(0, vals[0].shape[0] - 1, num=steps + 1, dtype=int)[1:]
+    intervals = np.linspace(0, vals[0].shape[0] - 1, num=steps + 1, dtype=int)[1:]  # noqa
 
     fig, ax = plt.subplots(figsize=get_figsize(image, max_size))
     ax.set_prop_cycle(colors)
@@ -258,7 +272,7 @@ def make_gif(trace, image, steps=200, leading_point=True, filename='output.gif',
     for val in vals:
         lines.append(ax.plot([], [], **default_kwargs)[0])
         if leading_point:
-            points.append(ax.plot([], [], 'o', c=lines[-1].get_color(), markersize=20)[0])
+            points.append(ax.plot([], [], 'o', c=lines[-1].get_color(), markersize=20)[0])   # noqa
         else:
             points.append(None)
 
@@ -274,7 +288,7 @@ def make_gif(trace, image, steps=200, leading_point=True, filename='output.gif',
 
         return ax
 
-    anim = FuncAnimation(fig, update, frames=np.arange(steps + 20), interval=interval)
+    anim = FuncAnimation(fig, update, frames=np.arange(steps + 20), interval=interval)   # noqa
     anim.save(filename, dpi=dpi, writer='imagemagick')
     return filename
 
@@ -293,14 +307,14 @@ def _process_image_trace(trace, image, blur):
         for idx in np.array(np.round(trace[color]), dtype=int):
             x, y = idx
             channel[min(x, w - 1), min(y, h - 1)] += 1
-    return [scipy.ndimage.filters.gaussian_filter(channel, blur) for channel in channels]
+    return [scipy.ndimage.filters.gaussian_filter(channel, blur) for channel in channels]   # noqa
 
 
 def plot_multitrace_color(trace, image, blur=8, channel_max=None):
     """Plot the trace from a color image
 
-    Does additive blending of the three channels using Pillow. Higher `blur` make the colors
-    look right, but the image look blurrier.
+    Does additive blending of the three channels using Pillow. Higher `blur`
+    make the colors look right, but the image look blurrier.
 
     Parameters
     ----------
@@ -311,8 +325,8 @@ def plot_multitrace_color(trace, image, blur=8, channel_max=None):
         Image array from `load_image`, used to produce the trace.
 
     blur : float
-        Each point only colors in a single pixel, but a gaussian blur makes the samples blend
-        well.  This typically must be tuned by eye.
+        Each point only colors in a single pixel, but a gaussian blur makes the
+        samples blend well. This typically must be tuned by eye.
 
     channel_max : list or None
         This is used internally to normalize channels for making a gif
@@ -325,12 +339,14 @@ def plot_multitrace_color(trace, image, blur=8, channel_max=None):
     smoothed = _process_image_trace(trace, image, blur)
     if channel_max is None:
         channel_max = [channel.max() for channel in smoothed]
-    pils = [Image.fromarray(np.uint8(255 * np.flipud(channel / c_max))) for channel, c_max in zip(smoothed, channel_max)]
+    pils = [Image.fromarray(np.uint8(255 * np.flipud(channel / c_max)))
+            for channel, c_max in zip(smoothed, channel_max)]
     return Image.merge('RGB', pils)
 
 
-def make_color_gif(trace, image, blur=8,
-             steps=200, max_size=10, leading_point=True, filename='output.gif', interval=30, dpi=20):
+def make_color_gif(trace, image, blur=8, steps=200, max_size=10,
+                   leading_point=True, filename='output.gif',
+                   interval=30, dpi=20):
     """Make a gif of the color trace. SUPER EXPERIMENTAL!
 
     Tries to grab portions of the trace from
@@ -345,16 +361,18 @@ def make_color_gif(trace, image, blur=8,
         Image array from `load_image`, used to produce the trace.
 
     blur : float
-        Each point only colors in a single pixel, but a gaussian blur makes the samples blend
-        well.  This typically must be tuned by eye.
+        Each point only colors in a single pixel, but a gaussian blur makes the
+        samples blend well.  This typically must be tuned by eye.
     steps : int
         Number of frames in the resulting .gif
 
     max_size : float
-        Used to set the figsize for the image, maintaining the aspect ratio. In inches!
+        Used to set the figsize for the image, maintaining the aspect ratio. In
+        inches!
 
     leading_point : bool
-        If true, adds a large point at the head of each chain, so you can follow the path easier.
+        If true, adds a large point at the head of each chain, so you can
+        follow the path easier.
 
     filename : str
         Place to save the resulting .gif to
@@ -363,7 +381,8 @@ def make_color_gif(trace, image, blur=8,
         How long each frame lasts. Pretty sure this is hundredths of seconds
 
     dpi : int
-        Quality of the resulting .gif Seems like larger values make the gif bigger too.
+        Quality of the resulting .gif Seems like larger values make the gif
+        bigger too.
 
     Returns
     -------
@@ -377,15 +396,16 @@ def make_color_gif(trace, image, blur=8,
     fig, ax = plt.subplots(figsize=figsize)
     ax.imshow(np.zeros_like(image))
     ax.axis('off')
-    channel_max = [channel.max() for channel in _process_image_trace(trace, image, blur)]
+    channel_max = [channel.max() for channel in _process_image_trace(trace, image, blur)]  # noqa
 
     with tqdm(total=steps) as pbar:
         def update(i):
-            color_image = plot_multitrace_color(trace[:intervals[i]], image, blur=blur, channel_max=channel_max)
+            color_image = plot_multitrace_color(
+                trace[:intervals[i]], image, blur=blur, channel_max=channel_max)  # noqa
             ax.imshow(color_image)
             pbar.update(1)
             return ax
 
-        anim = FuncAnimation(fig, update, frames=np.arange(steps), interval=interval)
+        anim = FuncAnimation(fig, update, frames=np.arange(steps), interval=interval)  # noqa
         anim.save(filename, dpi=dpi, writer='imagemagick')
     return filename
