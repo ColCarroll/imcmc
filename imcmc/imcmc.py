@@ -120,11 +120,11 @@ def sample_grayscale(image, samples=5000, tune=100, nchains=4, threshold=0.2):
                           tune=tune,
                           chains=nchains, step=pm.Metropolis(),
                           start=[{'image': x} for x in start],
-                          )
+                         )
     return trace
 
 
-def sample_color(image, samples=5000, tune=1000):
+def sample_color(image, samples=5000, tune=1000, nchains=4):
     """Run MCMC on a color image. EXPERIMENTAL!
 
     Parameters
@@ -151,7 +151,7 @@ def sample_color(image, samples=5000, tune=1000):
         pm.DensityDist('green', ImageLikelihood(image[:, :, 1]), shape=2)
         pm.DensityDist('blue', ImageLikelihood(image[:, :, 2]), shape=2)
 
-        trace = pm.sample(samples, njobs=1, tune=tune, step=pm.Metropolis())
+        trace = pm.sample(samples, chains=nchains, tune=tune, step=pm.Metropolis())
     return trace
 
 
@@ -269,20 +269,20 @@ def make_gif(trace, image, steps=200, leading_point=True,
     ax.axis('off')
 
     lines, points = [], []
-    for val in vals:
+    for _ in vals:
         lines.append(ax.plot([], [], **default_kwargs)[0])
         if leading_point:
             points.append(ax.plot([], [], 'o', c=lines[-1].get_color(), markersize=20)[0])   # noqa
         else:
             points.append(None)
 
-    def update(i):
-        if i < len(intervals):
+    def update(idx):
+        if idx < len(intervals):
             for pts, lns, val in zip(points, lines, vals):
-                lns.set_data(val[:intervals[i], 1], val[:intervals[i], 0])
+                lns.set_data(val[:intervals[idx], 1], val[:intervals[idx], 0])
                 if leading_point:
-                    pts.set_data(val[intervals[i], 1], val[intervals[i], 0])
-        elif i == len(intervals) and leading_point:
+                    pts.set_data(val[intervals[idx], 1], val[intervals[idx], 0])
+        elif idx == len(intervals) and leading_point:
             for pts in points:
                 pts.set_data([], [])
 
@@ -339,13 +339,14 @@ def plot_multitrace_color(trace, image, blur=8, channel_max=None):
     smoothed = _process_image_trace(trace, image, blur)
     if channel_max is None:
         channel_max = [channel.max() for channel in smoothed]
-    pils = [Image.fromarray(np.uint8(255 * np.flipud(channel / c_max)))
-            for channel, c_max in zip(smoothed, channel_max)]
+
+    pils = []
+    for channel, c_max in zip(smoothed, channel_max):
+        pils.append(Image.fromarray(np.uint8(255 * np.flipud(channel / c_max))))
     return Image.merge('RGB', pils)
 
 
-def make_color_gif(trace, image, blur=8, steps=200, max_size=10,
-                   leading_point=True, filename='output.gif',
+def make_color_gif(trace, image, blur=8, steps=200, max_size=10, filename='output.gif',
                    interval=30, dpi=20):
     """Make a gif of the color trace. SUPER EXPERIMENTAL!
 
@@ -389,7 +390,7 @@ def make_color_gif(trace, image, blur=8, steps=200, max_size=10,
     str
         filename where the gif was saved
     """
-    figsize = get_figsize(image, max_size=10)
+    figsize = get_figsize(image, max_size=max_size)
 
     intervals = np.linspace(0, len(trace) - 1, num=steps + 1, dtype=int)[1:]
 
@@ -399,9 +400,9 @@ def make_color_gif(trace, image, blur=8, steps=200, max_size=10,
     channel_max = [channel.max() for channel in _process_image_trace(trace, image, blur)]  # noqa
 
     with tqdm(total=steps) as pbar:
-        def update(i):
-            color_image = plot_multitrace_color(
-                trace[:intervals[i]], image, blur=blur, channel_max=channel_max)  # noqa
+        def update(idx):
+            color_image = plot_multitrace_color(trace[:intervals[idx]], image, blur=blur,
+                                                channel_max=channel_max)
             ax.imshow(color_image)
             pbar.update(1)
             return ax

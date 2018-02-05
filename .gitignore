@@ -1,3 +1,7 @@
 *.swp
 *.egg-info/
 *__pycache__/
+.cache/
+.coverage
+htmlcov/
+.DS_Store

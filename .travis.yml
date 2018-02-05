@@ -1,0 +1,13 @@
+sudo: false
+language: python
+python:
+  - "3.5"
+  - "3.6"
+install:
+  - pip install .
+  - pip install pytest pylint pytest-cov coveralls
+script:
+  - pylint imcmc
+  - py.test -v --cov=imcmc test/
+after_success:
+  - coveralls
