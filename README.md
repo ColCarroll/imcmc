@@ -1,5 +1,7 @@
 ![imcmc](examples/imcmc.gif)
 
+[![Build Status](https://travis-ci.org/ColCarroll/imcmc.svg?branch=master)](https://travis-ci.org/ColCarroll/imcmc)
+[![Coverage Status](https://coveralls.io/repos/github/ColCarroll/imcmc/badge.svg?branch=master)](https://coveralls.io/github/ColCarroll/imcmc?branch=master)
 
 *It probably makes art.*
 
