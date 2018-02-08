@@ -105,17 +105,18 @@ def sample_grayscale(image, samples=5000, tune=100, nchains=4, threshold=0.2):
         of indices that were sampled, with the variable name 'image'.
     """
     # preprocess
+    image_copy = image.copy()
     if threshold != -1:
-        image[image < threshold] = 0
-        image[image >= threshold] = 1
+        image_copy[image < threshold] = 0
+        image_copy[image >= threshold] = 1
 
     # need an active pixel to start on
-    active_pixels = np.array(list(zip(*np.where(image == image.max()))))
+    active_pixels = np.array(list(zip(*np.where(image_copy == image_copy.max()))))
     idx = np.random.randint(0, len(active_pixels), nchains)
     start = active_pixels[idx]
 
     with pm.Model():
-        pm.DensityDist('image', ImageLikelihood(image), shape=2)
+        pm.DensityDist('image', ImageLikelihood(image_copy), shape=2)
         trace = pm.sample(samples,
                           tune=tune,
                           chains=nchains, step=pm.Metropolis(),
