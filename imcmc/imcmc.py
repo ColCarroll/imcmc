@@ -301,6 +301,7 @@ def get_figsize(image, max_size=10):
 
 
 def _process_image_trace(trace, image, blur):
+    """Adds Gaussian blur"""
     w, h = image.shape[:2]
     colors = ('red', 'green', 'blue')
     channels = [np.zeros((w, h)) for color in colors]
