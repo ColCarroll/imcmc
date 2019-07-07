@@ -8,21 +8,21 @@
 `imcmc` (*im-sea-em-sea*) is a small library for turning 2d images into probability distributions
 and then sampling from them to create images and gifs. Right now it is best at logos and shape based images.
 
-
 Installation
 ------------
+
 This is actually `pip` installable from git!
 
-```
+```bash
 pip install git+https://github.com/ColCarroll/imcmc
 ```
 
-Quickstart
-----------
+Quickstart for logos and gifs
+-----------------------------
 
 See [imcmc.ipynb](examples/imcmc.ipynb) for a few working examples as well.
 
-```
+```python
 import imcmc
 
 
@@ -37,15 +37,62 @@ imcmc.plot_multitrace(trace, image, marker='o', markersize=10,
 
 # Save as a gif, with the same arguments as above, plus some more
 imcmc.make_gif(trace, image, dpi=40, marker='o', markersize=10,
-               colors=['#0000FF', '#FFFF00'], alpha=0.9, 
+               colors=['#0000FF', '#FFFF00'], alpha=0.9,
                filename='example.gif')
 ```
+
+![Python](examples/python.gif)
+
+Quickstart for color images
+---------------------------
+
+See [crosshatch.ipynb](examples/crosshatch.ipynb) for a few working examples as well.
+
+```python
+import matplotlib.pyplot as plt
+
+from imcmc.color import (
+    ImageLines,
+    IntensityMCMCStrategy,
+    UniformLinesStrategy,
+    GibbsIntensityStrategy
+)
+
+pete = plt.imread('color/pete2.jpg')
+
+ImageLines(pete, UniformStrategy()).plot()
+```
+
+![pete](examples/pete.jpg)
+
+```python
+munchen = plt.imread('color/munchen.jpg')
+
+ImageLines(munchen, IntensityMCMCStrategy(step_size=500)).plot(10_000)
+```
+
+![munchen](examples/munchen.jpg)
+
+```python
+beach = plt.imread('color/beach.jpg')
+
+ImageLines(beach, UniformLinesStrategy()).plot(1500, linewidth=1)
+```
+
+![beach](examples/beach.jpg)
+
+```python
+karwendel = plt.imread('color/karwendel.jpg')
+
+ImageLines(karwendel, GibbsIntensityStrategy()).plot(1_000)
+```
+
+![karwendel](examples/karwendel.jpg)
 
 Built with
 ----------
 
 `Pillow` does not have a logo, but the other tools do!
-
 
 ![PyMC3](examples/pymc3.gif)
 
@@ -55,18 +102,10 @@ Built with
 
 ![Python](examples/python.gif)
 
-
 Here's a tricky one whose support I appreciate
 ----------------------------------------------
 
-I get to do lots of open source work for [The Center for Civic Media](https://civic.mit.edu/) at 
+I get to do lots of open source work for [The Center for Civic Media](https://civic.mit.edu/) at
 MIT. Even better, they have a super multi-modal logo that I needed to use 98 chains to sample from!
 
 ![Center for Civic Media](examples/civic.gif)
-
-
-Further work
-------------
-
-There are some functions in there to sample from the RGB channels of real images, but the reconstructed
-images just look blurry, and the gifs just look like they are awkward fades. Still working on it!
