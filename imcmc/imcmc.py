@@ -6,6 +6,7 @@ from PIL import Image
 import pymc3 as pm
 import theano
 import theano.tensor as tt
+from theano.graph.op import Op
 from tqdm import tqdm
 import scipy
 
@@ -49,7 +50,7 @@ def load_image(image_file, mode=None):
     return img
 
 
-class ImageLikelihood(theano.Op):
+class ImageLikelihood(Op):
     """
     Custom theano op for turning a 2d intensity matrix into a density
     distribution.
